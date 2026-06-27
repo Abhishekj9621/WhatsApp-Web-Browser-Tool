@@ -1,0 +1,27 @@
+# Railway Nixpacks config — installs Chromium so Puppeteer (whatsapp-web.js) works
+[phases.setup]
+nixPkgs = [
+  "chromium",
+  "nss",
+  "freetype",
+  "harfbuzz",
+  "ca-certificates",
+  "glib",
+  "dbus",
+  "fontconfig",
+  "xorg.libX11",
+  "xorg.libXcomposite",
+  "xorg.libXdamage",
+  "xorg.libXext",
+  "xorg.libXfixes",
+  "xorg.libXrandr",
+  "xorg.libxcb",
+  "libxkbcommon",
+  "mesa"
+]
+
+[phases.install]
+cmds = ["cd backend && npm ci --omit=dev && npx prisma generate"]
+
+[start]
+cmd = "cd backend && npx prisma db push --accept-data-loss && node server.js"

@@ -1,0 +1,115 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users (dashboard login) ──────────────────────────────
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  password     String     // bcrypt hashed
+  name         String
+  role         Role       @default(ADMIN)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  contacts     Contact[]
+  campaigns    Campaign[]
+  mediaFiles   MediaFile[]
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+// ─── Contacts ────────────────────────────────────────────
+model Contact {
+  id        String    @id @default(cuid())
+  name      String
+  phone     String                      // e.g. "919876543210"
+  group     String    @default("General")
+  notes     String?
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  results   CampaignResult[]
+
+  @@unique([userId, phone])
+  @@index([userId])
+  @@index([group])
+}
+
+// ─── Media files (Cloudflare R2) ─────────────────────────
+model MediaFile {
+  id           String   @id @default(cuid())
+  originalName String
+  filename     String   // key in R2 bucket
+  mimetype     String
+  size         Int
+  url          String   // public R2 URL
+  createdAt    DateTime @default(now())
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  campaigns    Campaign[]
+}
+
+// ─── Campaigns ────────────────────────────────────────────
+model Campaign {
+  id               String           @id @default(cuid())
+  name             String
+  message          String?
+  caption          String?
+  delayMs          Int              @default(3000)
+  status           CampaignStatus   @default(PENDING)
+  totalRecipients  Int              @default(0)
+  sent             Int              @default(0)
+  failed           Int              @default(0)
+  createdAt        DateTime         @default(now())
+  completedAt      DateTime?
+
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mediaFileId      String?
+  mediaFile        MediaFile?       @relation(fields: [mediaFileId], references: [id])
+
+  results          CampaignResult[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum CampaignStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+// ─── Per-contact delivery log ────────────────────────────
+model CampaignResult {
+  id         String   @id @default(cuid())
+  status     String   // 'sent' | 'failed'
+  error      String?
+  sentAt     DateTime @default(now())
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  contactId  String
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+}

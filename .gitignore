@@ -1,0 +1,27 @@
+# Dependencies
+backend/node_modules/
+frontend/node_modules/
+
+# WhatsApp session (contains auth tokens - NEVER commit)
+backend/.wwebjs_auth/
+backend/.wwebjs_cache/
+
+# Environment secrets - NEVER commit
+backend/.env
+
+# Logs
+backend/logs/
+
+# React build output
+frontend/build/
+
+# Prisma generated client (re-generated on install)
+backend/node_modules/.prisma/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# PM2
+.pm2/
