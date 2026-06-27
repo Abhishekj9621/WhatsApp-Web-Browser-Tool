@@ -1,4 +1,3 @@
-```
 <div align="center">
 
 # 📲 WA Marketing
@@ -49,12 +48,10 @@ WA Marketing lets you send bulk WhatsApp messages — text or media — directly
 
 ## Architecture
 
-```
 Vercel (React frontend)  ──►  Railway (Node.js + Puppeteer)  ──►  PostgreSQL
                                         │
                                  Cloudflare R2
                                (media file storage)
-```
 
 ---
 
@@ -90,4 +87,3 @@ See `.env.example` for all required environment variables.
 <div align="center">
   <sub>Built with whatsapp-web.js · Not affiliated with WhatsApp or Meta</sub>
 </div>
-```
